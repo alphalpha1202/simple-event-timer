@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イベント用 カウントダウンタイマー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-soft': 'bounceSoft 0.8s infinite alternate',
+                        'sparkle': 'sparkle 1s infinite alternate',
+                    },
+                    keyframes: {
+                        bounceSoft: {
+                            '0%': { transform: 'scale(1)' },
+                            '100%': { transform: 'scale(1.05)' }
+                        },
+                        sparkle: {
+                            '0%': { backgroundColor: 'rgba(254, 240, 138, 0.4)' },
+                            '100%': { backgroundColor: 'rgba(251, 207, 232, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-rose-50 to-sky-50 text-slate-700 min-h-screen flex flex-col justify-between select-none overflow-x-hidden font-sans">
+
+    <!-- HEADER -->
+    <header class="w-full max-w-4xl mx-auto px-4 py-4 flex justify-between items-center border-b border-pink-200/60">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 rounded-2xl bg-amber-400 flex items-center justify-center font-black text-white shadow-md text-xl">
+                🐥
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight text-amber-900">キッズタイマー</h1>
+                <p class="text-xs text-amber-600 font-medium">ほいくえん・イベントよう</p>
+            </div>
+        </div>
+        <button id="settingsBtn" class="px-4 py-2 rounded-2xl bg-white/80 hover:bg-white text-slate-600 hover:text-slate-800 text-xs font-bold transition flex items-center gap-1.5 shadow-sm border border-pink-200">
+            ⚙️ おとの設定
+        </button>
+    </header>
+
+    <!-- MAIN DISPLAY CONTENT -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 max-w-4xl w-full mx-auto relative">
+        <!-- Dynamic Alert Overlay Container -->
+        <div id="flashContainer" class="absolute inset-0 rounded-3xl transition-colors duration-500 pointer-events-none -z-10"></div>
+
+        <!-- Confetti Canvas overlay -->
+        <canvas id="confettiCanvas" class="absolute inset-0 pointer-events-none z-20 w-full h-full"></canvas>
+
+        <!-- Circular Progress & Digital Display -->
+        <div class="relative w-full max-w-sm sm:max-w-md aspect-square flex items-center justify-center my-2">
+            <!-- SVG Progress Ring -->
+            <svg class="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 100 100">
+                <!-- Background track -->
+                <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="7" class="text-amber-100" fill="transparent" />
+                <!-- Dynamic Progress Ring -->
+                <circle id="progressRing" cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" 
+                        class="text-amber-400 transition-all duration-300 ease-linear" 
+                        fill="transparent" 
+                        stroke-dasharray="263.89" 
+                        stroke-dashoffset="0" 
+                        stroke-linecap="round" />
+            </svg>
+
+            <!-- Inner Timer Numbers & Status -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
+            <span id="statusLabel" class="text-sm sm:text-base font-bold tracking-wider text-amber-600 mb-1 bg-amber-100/80 px-4 py-1 rounded-full">じゅじゅんび OK！</span>
+            <div id="timerDisplay" class="font-mono text-7xl sm:text-8xl md:text-9xl font-black tracking-tighter tabular-nums text-slate-800 drop-shadow-sm transition-all duration-200">
+                00:30
+            </div>
+            <div id="presetLabel" class="text-xs sm:text-sm text-slate-500 font-bold mt-2 bg-white/60 px-3 py-1 rounded-full border border-pink-100">
+                せってい: 30びょう
+            </div>
+        </div>
+    </div>
+
+    <!-- TIME PRESETS & QUICK ADJUSTMENTS -->
+        <div id="presetSection" class="w-full max-w-md mb-6">
+            <div class="flex items-center justify-center gap-2 overflow-x-auto pb-2 no-scrollbar px-2">
+                <button onclick="setPreset(10, this)" class="preset-btn px-4 py-2 rounded-2xl bg-white text-slate-600 hover:bg-amber-100 text-xs font-bold shadow-sm border border-amber-200 transition">10秒</button>
+                <button onclick="setPreset(30, this)" class="preset-btn px-4 py-2 rounded-2xl bg-amber-400 text-amber-900 shadow-md text-xs font-bold transition">30秒</button>
+                <button onclick="setPreset(60, this)" class="preset-btn px-4 py-2 rounded-2xl bg-white text-slate-600 hover:bg-amber-100 text-xs font-bold shadow-sm border border-amber-200 transition">1分</button>
+                <button onclick="setPreset(180, this)" class="preset-btn px-4 py-2 rounded-2xl bg-white text-slate-600 hover:bg-amber-100 text-xs font-bold shadow-sm border border-amber-200 transition">3分</button>
+                <button onclick="setPreset(300, this)" class="preset-btn px-4 py-2 rounded-2xl bg-white text-slate-600 hover:bg-amber-100 text-xs font-bold shadow-sm border border-amber-200 transition">5分</button>
+                <button onclick="toggleCustomTimeModal()" class="px-4 py-2 rounded-2xl bg-amber-100 text-amber-800 hover:bg-amber-200 text-xs font-bold border border-amber-300 transition flex items-center gap-1 shadow-sm">
+                    ✏️ じかんの指定
+                </button>
+            </div>
+        </div>
+
+        <!-- ACTION CONTROLS -->
+        <div class="flex items-center justify-center gap-4 w-full max-w-md">
+            <!-- RESET BUTTON -->
+            <button id="resetBtn" onclick="resetTimer()" class="flex-1 py-4 px-6 rounded-3xl bg-white hover:bg-slate-50 active:scale-95 text-slate-600 font-bold text-lg shadow-md border border-slate-200 transition-all flex items-center justify-center gap-2">
+                🔄 つぎへ
+            </button>
+
+            <!-- START / PAUSE BUTTON -->
+            <button id="startBtn" onclick="toggleTimer()" class="flex-[2] py-4 px-8 rounded-3xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 active:scale-95 text-white font-black text-2xl shadow-xl shadow-teal-500/20 transition-all flex items-center justify-center gap-2">
+                <svg id="playIcon" class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="pauseIcon" class="w-7 h-7 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <span id="startBtnText">スタート</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- FOOTER INFO -->
+    <footer class="w-full max-w-4xl mx-auto px-4 py-3 text-center text-xs text-slate-400 font-medium">
+        ✨ 5秒まえから木琴の音が鳴り、時間になると楽しいファンファーレが鳴ります。
+    </footer>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-pink-100 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
+            <h3 class="text-xl font-black text-amber-900 mb-4 flex items-center gap-2">
+                🎵 おとの設定
+            </h3>
+
+            <div class="space-y-5">
+                <!-- Sound Type Selection -->
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">おしまいの音（0秒）の選択</label>
+                    <select id="soundTypeSelect" class="w-full bg-amber-50 border border-amber-200 rounded-2xl px-3 py-3 text-slate-700 font-bold focus:ring-2 focus:ring-amber-400 outline-none">
+                        <option value="whistle">⚽ 運動会の笛（ピピピィー！ピピピィー！）</option>
+                        <option value="horn">🎺 パフパフラッパ（ぷっぷー！ぷっぷー！）</option>
+                        <option value="alarm">⏰ ポップアラーム（ピピピピ！ピピピピ！）</option>
+                    </select>
+                </div>
+
+                <!-- Volume Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">音量（すぴーかーの大きさ）</label>
+                        <span id="volumeValue" class="text-xs font-mono text-amber-600 font-bold">80%</span>
+                    </div>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="80" class="w-full accent-amber-500 h-2 bg-amber-100 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Test Sound Buttons -->
+                <div class="pt-2 border-t border-slate-100 flex gap-2">
+                    <button onclick="testBeepSound()" class="flex-1 py-2.5 px-3 rounded-2xl bg-amber-100 hover:bg-amber-200 text-xs font-bold text-amber-800 transition">
+                        🪵 5秒まえの音
+                    </button>
+                    <button id="testTimeUpBtn" onclick="toggleTestTimeUpSound()" class="flex-1 py-2.5 px-3 rounded-2xl bg-rose-100 hover:bg-rose-200 text-xs font-bold text-rose-800 transition">
+                        🎉 おしまいの音（鳴らしテスト）
+                    </button>
+                </div>
+            </div>
+
+            <!-- Close Modal -->
+            <button onclick="toggleSettingsModal()" class="mt-6 w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black transition shadow-md">
+                かんりょう
+            </button>
+        </div>
+    </div>
+
+    <!-- CUSTOM TIME MODAL -->
+    <div id="customTimeModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-pink-100 rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-xl font-black text-amber-900 mb-4">じかんの自由設定</h3>
+            <div class="flex gap-3 justify-center items-center my-4">
+                <div class="flex flex-col items-center">
+                    <input type="number" id="customMinutes" min="0" max="99" value="0" class="w-20 text-center font-mono text-3xl font-black bg-amber-50 border border-amber-200 rounded-2xl p-3 text-slate-800 outline-none focus:ring-2 focus:ring-amber-400">
+                    <span class="text-xs font-bold text-slate-400 mt-1">ふん</span>
+                </div>
+                <span class="text-2xl font-black text-amber-300">:</span>
+                <div class="flex flex-col items-center">
+                    <input type="number" id="customSeconds" min="0" max="59" value="30" class="w-20 text-center font-mono text-3xl font-black bg-amber-50 border border-amber-200 rounded-2xl p-3 text-slate-800 outline-none focus:ring-2 focus:ring-amber-400">
+                    <span class="text-xs font-bold text-slate-400 mt-1">びょう</span>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button onclick="toggleCustomTimeModal()" class="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition">キャンセル</button>
+                <button onclick="applyCustomTime()" class="flex-1 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black transition shadow-md">オッケー</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/audio.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
