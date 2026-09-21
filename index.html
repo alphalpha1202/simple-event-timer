@@ -45,7 +45,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-extrabold tracking-tight text-amber-900">キッズタイマー</h1>
-                <p class="text-xs text-amber-600 font-medium">ほいくえん・イベントよう</p>
+                <p class="text-xs text-amber-600 font-medium">イベントよう</p>
             </div>
         </div>
         <button id="settingsBtn" class="px-4 py-2 rounded-2xl bg-white/80 hover:bg-white text-slate-600 hover:text-slate-800 text-xs font-bold transition flex items-center gap-1.5 shadow-sm border border-pink-200">
@@ -78,7 +78,7 @@
 
             <!-- Inner Timer Numbers & Status -->
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
-            <span id="statusLabel" class="text-sm sm:text-base font-bold tracking-wider text-amber-600 mb-1 bg-amber-100/80 px-4 py-1 rounded-full">じゅじゅんび OK！</span>
+            <span id="statusLabel" class="text-sm sm:text-base font-bold tracking-wider text-amber-600 mb-1 bg-amber-100/80 px-4 py-1 rounded-full">じゅんび OK！</span>
             <div id="timerDisplay" class="font-mono text-7xl sm:text-8xl md:text-9xl font-black tracking-tighter tabular-nums text-slate-800 drop-shadow-sm transition-all duration-200">
                 00:30
             </div>
@@ -97,7 +97,7 @@
                 <button onclick="setPreset(180, this)" class="preset-btn px-4 py-2 rounded-2xl bg-white text-slate-600 hover:bg-amber-100 text-xs font-bold shadow-sm border border-amber-200 transition">3分</button>
                 <button onclick="setPreset(300, this)" class="preset-btn px-4 py-2 rounded-2xl bg-white text-slate-600 hover:bg-amber-100 text-xs font-bold shadow-sm border border-amber-200 transition">5分</button>
                 <button onclick="toggleCustomTimeModal()" class="px-4 py-2 rounded-2xl bg-amber-100 text-amber-800 hover:bg-amber-200 text-xs font-bold border border-amber-300 transition flex items-center gap-1 shadow-sm">
-                    ✏️ じかんの指定
+                    カスタム時間
                 </button>
             </div>
         </div>
@@ -106,7 +106,7 @@
         <div class="flex items-center justify-center gap-4 w-full max-w-md">
             <!-- RESET BUTTON -->
             <button id="resetBtn" onclick="resetTimer()" class="flex-1 py-4 px-6 rounded-3xl bg-white hover:bg-slate-50 active:scale-95 text-slate-600 font-bold text-lg shadow-md border border-slate-200 transition-all flex items-center justify-center gap-2">
-                🔄 つぎへ
+                リセット
             </button>
 
             <!-- START / PAUSE BUTTON -->

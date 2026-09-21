@@ -145,7 +145,7 @@ function toggleTestTimeUpSound() {
     if (isTestingTimeUp) {
         stopTimeUpSound();
         isTestingTimeUp = false;
-        btn.textContent = "🎉 おしまいの音（鳴らしテスト）";
+        btn.textContent = "🎉 おしまいの音";
         btn.className = "flex-1 py-2.5 px-3 rounded-2xl bg-rose-100 hover:bg-rose-200 text-xs font-bold text-rose-800 transition";
     } else {
         startTimeUpSoundLoop();
